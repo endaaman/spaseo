@@ -1,5 +1,6 @@
-if ((typeof window !== 'undefined' && window !== null)) {
+if (typeof window !== 'undefined') {
     module.exports = require('./client');
-} else if ((typeof global !== 'undefined' && global !== null)) {
-    module.exports = require('./server');
+} else {
+    // run away from Webpack module detection system
+    module.exports = eval('require')('./server');
 }
