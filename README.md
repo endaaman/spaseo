@@ -1,4 +1,4 @@
-# すぱせお - spaseo
+# すぱせお.js - spaseo.js
 
 `spaseo` means `Single Page Application Search Engine Optimization`.
 
@@ -9,79 +9,60 @@
 ```
 npm i spaseo -S
 ```
-For server and browser(`require` available environment e.g. Webpack Browserify)
+Available both for server and browser(e.g. Webpack Browserify)
 
-or
+
+## On browser
 
 ```
-bower i spaseo -S
+var spaseo = require(spaseo);
 ```
-just for browser.
-
-
-## client
-* add `<script>` tag and `window.spaseo` is available
-* `var spaseo = require(spaso);`
 
 ### spaseo() => cb
-Returns callback. Calling callback, spaseo tells PhantomJs on server "HTML IS REDEAY TO RENDER!"
+On `spaseo()` called, PhantomJS starts waiting for `cb()` is called. Returned callback tells PhantomJS "HTML is ready to render.".
 
 
-## server
+## On server - API
 ### spaseo(targetBaseUrl[, timeout[, logging]])
 
 * `targetBaseUrl` should include protcol and host like
   `http://localhost:8080` or `http://example.com`
 
-  NOTE: spaseo doesn't remove trailing slash
+  NOTICE: spaseo doesn't remove trailing slash
 
-* `timeout`(default:`3000`) Waiting period from `var cb = spaseo();` to `cb()`. when provided falsy value, set timeout default.
+* `timeout`(default:`3000`) Waiting duraion from `var cb = spaseo();` to `cb()`. when provided falsy value, set timeout default.
 
 * `logging`(default:`undefined`) whether to put log.
 
-## Usage
-Work well with `forever`.
+## On server - CLI
 ```
-# seo-server.js
-require('spaseo')('http://example.com').listen(9999);
+./node_modules/spaseo.js/bin/spaseo -u http://example.com -p 9999
 ```
-
+If globally installed, just run
 ```
-# start on your shell
-$ forever start seo-server.js
+spaseo -u http://example.com -p 9999
 ```
 
 
-```
-# nginx.conf
-location / {
-    if ($args ~ _escaped_fragment_) {
-        proxy_pass http://localhost:9999;
-    }
-    index /index.html;
-    try_files $uri /index.html = 404;
-}
-```
-
-## NOTE
+## NOTICE
 
 * Don't forget add `<meta name="fragment" content="!">`.
-
-
 * Can not use url like this `http://example.com/#!/path/to?q1=123&q2=abc`.
   See the section "Role of the Search Engine Crawler" of
   https://developers.google.com/webmasters/ajax-crawling/docs/specification
-
   To sum it all up, shebang mode may not work(use html5Mode).
+
+* Works well with [`pm2`](https://github.com/Unitech/pm2) or [`forever`](https://github.com/foreverjs/forever).
 
 
 ## example
-Clone this repo and run
+See [example](https://github.com/endaaman/spaseo.js/tree/master/example). To try this, clone this repo and run
 ```
 npm run example
 ```
-and open `http://localhost:8080`.
+Then access to `http://localhost:8080`.
 
+Or, my personal homepage [source code(https://github.com/endaaman/enda)](https://github.com/endaaman/enda)
 
 ## license
 MIT
