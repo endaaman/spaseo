@@ -43,6 +43,7 @@
       };
 
       var onPageCreated = function(page) {
+        page.set('settings.loadImages', false);
         page.set('onCallback', function(command) {
           switch (command) {
             case 'SPASEO_CB_START':
