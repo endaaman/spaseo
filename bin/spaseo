@@ -1,0 +1,34 @@
+#!/usr/bin/env node
+var pjson = require('../package.json');
+var program = require('commander');
+
+program
+.version(pjson.version)
+.option('-p, --port <port>', 'port number(required)')
+.option('-u, --url <url>', 'target spa base url like "http://example.com"(required)')
+.option('-t, --timeout <timeout>', 'timeout duration(default:3000 optional)')
+.option('-l, --logging', 'logging(optional)')
+.parse(process.argv);
+
+if (!program.port || !program.url) {
+    program.help();
+    process.exit(0);
+}
+
+if (program.port) {
+    program.port = parseInt(program.port);
+    if (!program.port) {
+        console.error('port must be integer.');
+        process.exit(1);
+    }
+} else {
+    console.error('specifiy port.');
+    process.exit(1);
+}
+
+if (!program.url) {
+    console.error('specifiy url.');
+    process.exit(1);
+}
+
+require('../spaseo')(program.url, program.timeout, program.logging).listen(program.port);
