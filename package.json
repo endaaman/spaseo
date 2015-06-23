@@ -29,6 +29,7 @@
     "url": "git://github.com/endaaman/spaseo.git"
   },
   "dependencies": {
+    "commander": "^2.8.1",
     "phantom": "^0.7.0"
   },
   "devDependencies": {
