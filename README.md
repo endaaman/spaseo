@@ -2,6 +2,7 @@
 
 `spaseo` means `Single Page Application Search Engine Optimization`.
 
+[pronounce](https://raw.githubusercontent.com/endaaman/spaseo/master/misc/spaseo.mp3)
 
 ## Installation
 
