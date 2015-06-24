@@ -12,7 +12,7 @@
       }
       delete queryObj['_escaped_fragment_'];
     } else {
-      return uglyUrl;
+      return null;
     }
     newUrlObj = {
       protocol: oldUrlObj.protocol,

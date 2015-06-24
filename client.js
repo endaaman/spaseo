@@ -1,17 +1,13 @@
 (function() {
   var isOnPhantom = typeof window.callPhantom === 'function'
-  var commands = {
-    start : 'SPASEO_CB_START',
-    finish: 'SPASEO_CB_FINISH'
-  }
-  var spaseo = function(debounce){
+  var spaseo = function(){
     if (isOnPhantom) {
-      window.callPhantom(commands.start);
+      window.callPhantom('SPASEO_NOTIFY_RENDERING_START');
     }
-    return function() {
+    return function(debounce) {
       if (isOnPhantom) {
         setTimeout(function() {
-          window.callPhantom(commands.finish);
+          window.callPhantom('SPASEO_NOTIFY_RENDERING_START');
         }, Math.abs(parseInt(debounce, 0)));
       }
     }
