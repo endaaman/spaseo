@@ -1,6 +1,6 @@
 {
   "name": "spaseo.js",
-  "description": "SEO server for SPA page",
+  "description": "SEO server and client tool for SPA",
   "keywords": [
     "SPA",
     "SinglePageApplication",
@@ -20,13 +20,13 @@
     "node": ">=0.8.0"
   },
   "main": "spaseo.js",
-  "homepage": "https://github.com/endaaman/spaseo",
+  "homepage": "https://github.com/endaaman/spaseo.js",
   "bugs": {
-    "url": "https://github.com/endaaman/spaseo/issues"
+    "url": "https://github.com/endaaman/spaseo.js/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/endaaman/spaseo.git"
+    "url": "git://github.com/endaaman/spaseo.js.git"
   },
   "dependencies": {
     "commander": "^2.8.1",
