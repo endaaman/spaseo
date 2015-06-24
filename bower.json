@@ -4,15 +4,27 @@
   "version": "0.0.4",
   "homepage": "https://github.com/endaaman/spaseo.js",
   "authors": [
-    "endaaman <buhibuhidog@gmail.com>"
+    "endaaman (http://endaaman.me)"
   ],
   "description": "SEO server and client tool for SPA",
   "moduleType": [
     "globals",
     "node"
   ],
+  "ignore": [
+    ".*",
+    "bin",
+    "example",
+    "misc",
+    "commands.js",
+    "package.json",
+    "prettify.js",
+    "server.js",
+    "spaseo.js"
+  ],
   "keywords": [
-    "SPA"
+    "SPA",
+    "SEO"
   ],
   "license": "MIT"
 }
