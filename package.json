@@ -17,7 +17,7 @@
   "scripts": {
     "example": "bash example/start.sh"
   },
-  "version": "0.0.4",
+  "version": "0.0.5",
   "license": "MIT",
   "engines": {
     "node": ">=0.8.0"
