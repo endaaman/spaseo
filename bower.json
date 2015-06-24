@@ -20,7 +20,8 @@
     "package.json",
     "prettify.js",
     "server.js",
-    "spaseo.js"
+    "spaseo.js",
+    "README.md"
   ],
   "keywords": [
     "SPA",
