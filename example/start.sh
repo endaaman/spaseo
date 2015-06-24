@@ -1,6 +1,11 @@
 #!/bin/bash
-node_modules/forever/bin/forever start example/seo-server.js
 
-bash example/start-nginx.sh
+nohup bin/spaseo -v -p 9999 > example/spaseo.log 2>&1&
+echo $! > example/spaseo.pid
 
-node_modules/forever/bin/forever stop example/seo-server.js
+cwd="$(cd "$(dirname "${BASH_SOURCE:-$0}")"; pwd)"
+echo 'access to http://localhost:8080'
+nginx -c $cwd/nginx.conf -p $cwd/
+
+kill -9 `cat example/spaseo.pid` 2>&1&
+rm example/spaseo.pid
