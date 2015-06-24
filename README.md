@@ -24,13 +24,14 @@ the former provides html with no contents, but the latter with some contents. Th
 
 
 ## Installation
-
+### npm
+Available both for server and browser(use Webpack or Browserify)
 ```
 npm i spaseo.js -S
 ```
-Available both for server and browser(use Webpack or Browserify)
-or only for browser
 
+### bower
+Only for browser
 ```
 bower i spaseo.js -S
 ```
