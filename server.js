@@ -8,10 +8,12 @@
   var logPrefix = '[spaseo] ';
   var ph = null;
 
-  module.exports = function(port, timeout, targetBaseUrl, logging) {
-    var port = parseInt(port) || 9999;
-    var timeout = parseInt(timeout) || 7000;
-    var targetBaseUrl = targetBaseUrl || null;
+  module.exports = function(config) {
+    config = config || {}
+    var port = parseInt(config.port) || 9999;
+    var timeout = parseInt(config.timeout) || 7000;
+    var targetBaseUrl = config.baseUrl || null;
+    var logging = !!config.logging;
 
     var $log = function(message, w) {
       if (logging){
@@ -88,8 +90,9 @@
             response.write(html);
             response.end();
             finished = true;
-            $log('Rendered ' + originalUrl);
-            $log('Refered ' + uglyUrl);
+            $log('rendered html');
+            $log('ugly  :' + originalUrl);
+            $log('pretty:' + uglyUrl);
           }
         });
       }

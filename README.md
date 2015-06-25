@@ -39,38 +39,76 @@ bower i spaseo.js -S
 
 ## On browser
 
+### spaseo() => callback
+Called, this tell the server to wait for `callback` is called.
+
+### spaseo.wrap(wrapper)
+Default is
 ```
-var spaseo = require(spaseo);
+function(callback) {
+    setTimeout(function() {
+        callback()
+    }, 0);
+};
+```
+This is useful if using a library in which the moment that HTML is fully rendered comes in peculiar callback. An example with Vue.js
+
+```
+# setting phase
+Vue = require 'vue'
+spaseo = require 'spaseo.js'
+spaseo.wrap (cb)->
+    Vue.nextTick ->
+        cb()
+
+
+# implementation
+~~ = Vue.extend
+    template: ~~
+    data: ->
+        items: []
+    attached: ->
+        cb = spaseo()
+        request.get "/api/items"
+        .end (err, res)=>
+            @items = res.body
+            cb()
 ```
 
-### spaseo() => cb
-On `spaseo()` called, PhantomJS starts waiting for `cb()`. Returned callback tells `spaseo` of server "HTML is ready to render".
+### callback <= spaseo()
+Just telling the server that html is ready to render.
 
 
 ## On server - API
-### spaseo([port[, targetBaseUrl[, timeout[, logging]]]])
+### spaseo(config)
 
-* `port`(default: `9999`)
+* `config.port` (default: `9999`)
 
-* `targetBaseUrl`(default: `'http://' + request.header.host + prettfiedUrl`)
+* `config.baseUrl` (default: `'http://' + request.header.host + prettfiedUrl`)
 
-  This should include protcol and host like `http://localhost:8080` or `http://example.com`. `spaseo.js` simply joins provided `targetBaseUrl` and path of HTTP header. (**`spaseo.js` doesn't remove trailing slash**)
+  This should include protcol and host like `http://localhost:8080` or `http://example.com`. `spaseo.js` simply joins provided `baseUrl` and path(loaded from from HTTP header). And, **Please know that `spaseo.js` doesn't remove trailing slash.**
 
-  If not specified, getting request, `spaseo.js` checks `host` of HTTP header and joins `protcol`, `host` and `path` like `'http://' + request.header.host + prettfiedUrl`, then open the page using PhantomJS.
+  If not specified, getting request, `spaseo.js` checks `host` of HTTP header and joins `protcol`, `host` and `path` like `'http://' + request.header.host + prettfiedUrl`.
 
   ** To omit this option, put `proxy_set_header Host $http_host;` on your `nginx.conf`.**
 
-* `timeout`(default:`7000`)
+* `config.timeout`(default:`7000`)
 
   duration of period from `var cb = spaseo();` to `cb()`. When provided falsy value, uses default.
 
-* `logging`(default:`undefined`) whether to put log.
+* `config.logging`(default:`undefined`) whether to put log.
 
 
 ## On server - CLI
 ```
 ./node_modules/spaseo.js/bin/spaseo --url http://example.com --port 4545 --verbose
 ```
+* `--port` for `config.port`
+* `--url` for `config.baseUrl`
+* `--timeout` for `config.timeout`
+* `--verbose` for `config.logging`
+* `--help` shows usage
+
 
 If globally installed, can run
 ```
@@ -96,7 +134,9 @@ npm run example
 ```
 Then try `curl http://localhost:8080` and `curl http://localhost:8080?_escaped_fragment_`.
 
-Or, my personal homepage([endaaman.me](http://endaaman.me)) uses `spaseo.js`. source code available on [here](https://github.com/endaaman/enda)
+Or, my personal homepage([endaaman.me](http://endaaman.me)) uses `spaseo.js`. source code is  [here](https://github.com/endaaman/enda)!
+
+Enjoy!
 
 ## license
 MIT

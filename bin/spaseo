@@ -10,4 +10,9 @@ program
 .option('-v, --verbose', 'whether to put logs')
 .parse(process.argv);
 
-require('../spaseo')(program.port, program.url, program.timeout, program.verbose);
+require('../spaseo')({
+    port: program.port,
+    baseUrl: program.url,
+    timeout: program.timeout,
+    logging: program.verbose
+});
