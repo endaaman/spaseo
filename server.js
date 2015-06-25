@@ -44,7 +44,6 @@
           baseUrl = targetBaseUrl;
       } else {
           baseUrl = 'http://' + request.headers.host
-          console.log(request.headers);
       }
 
       var requestingForSelf = regRequestingForSelf.test(request.headers.host);
@@ -89,7 +88,6 @@
             response.write(html);
             response.end();
             finished = true;
-            $log(request.headers.host);
             $log('Rendered ' + originalUrl);
             $log('Refered ' + uglyUrl);
           }
