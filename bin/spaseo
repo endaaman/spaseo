@@ -7,12 +7,14 @@ program
 .option('-p, --port <port>', 'port number(default: 9999)')
 .option('-t, --timeout <timeout>', 'timeout duration(default: 7000)')
 .option('-u, --url <url>', 'target spa base url like "http://example.com"(default: "http://"+request.headers.host)')
+.option('-c, --cushion <cushion>', 'cushion duration(default: 500)')
 .option('-v, --verbose', 'whether to put logs')
 .parse(process.argv);
 
 require('../spaseo')({
-    port: program.port,
-    baseUrl: program.url,
-    timeout: program.timeout,
-    verbose: program.verbose
+  port: program.port,
+  baseUrl: program.url,
+  timeout: program.timeout,
+  cushion: program.cushion,
+  verbose: program.verbose
 });

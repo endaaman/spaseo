@@ -12,8 +12,9 @@
   module.exports = function(config) {
     config = config || {}
     var port = parseInt(config.port) || 9999;
-    var timeout = parseInt(config.timeout) || 7000;
     var targetBaseUrl = config.baseUrl || null;
+    var timeout = parseInt(config.timeout) || 7000;
+    var cushionDuration = parseInt(config.cushionDuration) || 500;
     var verbose = !!config.verbose;
     var $log = function(message, w) {
       if (verbose){
@@ -120,10 +121,12 @@
         });
 
         page.open(targetUrl, function(status) {
-          if (!waitForCallback) {
-            $log('Redering immediately..');
-            evalAndRender(page);
-          }
+          setTimeout(function() {
+            if (!waitForCallback) {
+              $log('Redering immediately..');
+              evalAndRender(page);
+            }
+          }, cushionDuration);
         });
       });
 

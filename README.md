@@ -96,6 +96,12 @@ Just tell the server html is ready to render.
 
   duration of period from `var cb = spaseo();` to `cb()`. When provided falsy value, uses default.
 
+
+* `config.cushionDuration`(default:`500`)
+
+  Waiting duration for `spaseo()` called. Not called `spaseo()` on client, spaseo renders html immediately. Taking this longtime increases reliability of rendering html completely, but minimum response time becomes just `cushionDuration`. Be chariness if you set this option.
+
+
 * `config.verbose`(default:`undefined`) whether to put log.
 
 
@@ -107,6 +113,7 @@ spaseo --port <port> --url <url> --timeout <timeout> --verbose
 * `--url` for `config.baseUrl`
 * `--timeout` for `config.timeout`
 * `--verbose` for `config.verbose`
+* `--cushion` for `config.cushionDuration`
 * `--help` may help you
 
 do
@@ -158,15 +165,18 @@ server {
     listen 80;
     server_name example.com;
     location / {
-        proxy_set_header Host $http_host;
+        index /index.html;
+        try_files $uri @fallback;
+        expires 15m;
+    }
+    location @fallback {
         if ($args ~ _escaped_fragment_) {
-            proxy_pass spaseo;
+            proxy_pass http://spaseo;
         }
         if ($http_user_agent ~* "googlebot|yahoo") {
-            proxy_pass spaseo;
+            proxy_pass http://spaseo;
         }
-        index /index.html;
-        try_files $uri /index.html = 404;
+        try_files /index.html = 404;
     }
 }
 ```
