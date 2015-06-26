@@ -3,9 +3,7 @@
   "description": "SEO server and client tool for SPA",
   "keywords": [
     "SPA",
-    "SinglePageApplication",
     "SEO",
-    "SearchEngineOptimization",
     "prerender"
   ],
   "author": {
@@ -17,7 +15,7 @@
   "scripts": {
     "example": "bash example/start.sh"
   },
-  "version": "0.0.7",
+  "version": "0.0.8",
   "license": "MIT",
   "engines": {
     "node": ">=0.8.0"
@@ -34,5 +32,14 @@
   "dependencies": {
     "commander": "^2.8.1",
     "phantom": "^0.7.2"
-  }
+  },
+  "files": [
+    "bin",
+    "README.md",
+    "package.json",
+    "spaseo.js",
+    "server.js",
+    "client.js",
+    "commands.js"
+  ]
 }

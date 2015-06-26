@@ -1,10 +1,10 @@
 {
   "name": "spaseo.js",
   "main": "client.js",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "homepage": "https://github.com/endaaman/spaseo.js",
   "authors": [
-    "endaaman (http://endaaman.me)"
+    "endaaman"
   ],
   "description": "SEO server and client tool for SPA",
   "moduleType": [
@@ -20,8 +20,7 @@
     "package.json",
     "prettify.js",
     "server.js",
-    "spaseo.js",
-    "README.md"
+    "spaseo.js"
   ],
   "keywords": [
     "SPA",
