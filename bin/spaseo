@@ -14,5 +14,5 @@ require('../spaseo')({
     port: program.port,
     baseUrl: program.url,
     timeout: program.timeout,
-    logging: program.verbose
+    verbose: program.verbose
 });
