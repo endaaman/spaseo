@@ -8,19 +8,18 @@
 `spaseo.js` solves SEO problem of single page apps by prerendering HTML using PhantomJS.
 
 Just try
-
 ```
 curl http://endaaman.me
 ```
-
 and
-
 ```
 curl http://endaaman.me?_escaped_fragment_
 ```
-
-the former provides html with no contents, but the latter with some contents. This is power of `spaseo.js`
-
+or
+```
+curl http://endaaman.me -A Googlebot
+```
+the former provides html with no contents, but the latter with some contents. This is the power of `spaseo.js`
 
 
 ## Installation
@@ -40,7 +39,7 @@ bower i spaseo.js -S
 ## On browser
 
 ### spaseo() => callback
-Called, this tell the server to wait for `callback` is called.
+Called, this tell the server to wait for `callback`.
 
 ### spaseo.wrap(wrapper)
 Default is
@@ -63,20 +62,21 @@ spaseo.wrap (cb)->
 
 
 # implementation
+request = require 'superagent'
 ~~ = Vue.extend
     template: ~~
     data: ->
         items: []
     attached: ->
         cb = spaseo()
-        request.get "/api/items"
+        request.get '/api/items'
         .end (err, res)=>
             @items = res.body
             cb()
 ```
 
-### callback <= spaseo()
-Just telling the server that html is ready to render.
+### callback() (<= spaseo())
+Just tell the server html is ready to render.
 
 
 ## On server - API
@@ -96,45 +96,100 @@ Just telling the server that html is ready to render.
 
   duration of period from `var cb = spaseo();` to `cb()`. When provided falsy value, uses default.
 
-* `config.logging`(default:`undefined`) whether to put log.
+* `config.verbose`(default:`undefined`) whether to put log.
 
 
 ## On server - CLI
 ```
-./node_modules/spaseo.js/bin/spaseo --url http://example.com --port 4545 --verbose
+spaseo --port <port> --url <url> --timeout <timeout> --verbose
 ```
 * `--port` for `config.port`
 * `--url` for `config.baseUrl`
 * `--timeout` for `config.timeout`
-* `--verbose` for `config.logging`
-* `--help` shows usage
+* `--verbose` for `config.verbose`
+* `--help` may help you
 
+do
+```
+./node_modules/spaseo.js/bin/spaseo -v
+```
+or if globally installed
+```
+spaseo -p 4545 -u http://example.com
+```
 
-If globally installed, can run
-```
-spaseo -p 4545
-```
 
 
 ## NOTICE
-
+* Not supprting `https`.
 * Don't forget add `<meta name="fragment" content="!">`.
 * Can not use url like this `http://example.com/#!/path/to?q1=123&q2=abc`.
   See the section "Role of the Search Engine Crawler" of
   https://developers.google.com/webmasters/ajax-crawling/docs/specification
   To sum it all up, shebang mode may not work(use html5Mode).
-
 * Works well with [`pm2`](https://github.com/Unitech/pm2) or [`forever`](https://github.com/foreverjs/forever).
 
+## Example
 
-## example
-See [example](https://github.com/endaaman/spaseo.js/tree/master/example). To try this, clone this repo and run
+### Booting spaseo server
+Write script starting spaseo server
+```
+// seo.js
+require('spaseo.js')({
+    port: 6557,
+    timeout: 100000
+});
+```
+and run
+```
+pm2 start seo.js
+```
+or
+```
+forver start seo.js
+```
+
+### Write nginx.conf
+```
+upstream spaseo {
+    server localhost:6557;
+}
+server {
+    listen 80;
+    server_name example.com;
+    location / {
+        proxy_set_header Host $http_host;
+        if ($args ~ _escaped_fragment_) {
+            proxy_pass spaseo;
+        }
+        if ($http_user_agent ~* "googlebot|yahoo") {
+            proxy_pass spaseo;
+        }
+        index /index.html;
+        try_files $uri /index.html = 404;
+    }
+}
+```
+
+This is usual setting for Single Page App with `spaseo.js`. Getting request with `?_escaped_fragment_` or `User-Agent` including `googlebot` or `yahoo`, passing to `spaseo` server listening `http://localhost:6557`.
+
+
+### Now SEO is ready
+checking
+```
+curl http://example.com?_escaped_fragment_
+```
+or
+```
+curl http://example.com -A Googlebot
+```
+
+### Quick hands on
+Clone this repo and run
 ```
 npm run example
 ```
-Then try `curl http://localhost:8080` and `curl http://localhost:8080?_escaped_fragment_`.
-
-Or, my personal homepage([endaaman.me](http://endaaman.me)) uses `spaseo.js`. source code is  [here](https://github.com/endaaman/enda)!
+Then try `curl http://localhost:8080` and `curl http://localhost:8080?_escaped_fragment_` or `curl http://localhost:8080 -A Googlebot`
 
 Enjoy!
 
