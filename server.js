@@ -1,6 +1,7 @@
 (function() {
   var http = require('http');
   var phantom = require('phantom');
+
   var prettify = require('./prettify');
   var pjson = require('./package.json');
   var commands = require('./commands');
@@ -13,69 +14,73 @@
     var port = parseInt(config.port) || 9999;
     var timeout = parseInt(config.timeout) || 7000;
     var targetBaseUrl = config.baseUrl || null;
-    var logging = !!config.logging;
-
+    var verbose = !!config.verbose;
     var $log = function(message, w) {
-      if (logging){
+      if (verbose){
           var l;
           if (w) {
-              l = console.warn;
+            l = console.warn;
           } else {
-              l = console.log;
+            l = console.log;
           }
           if (Array.isArray(message)) {
-              for (var i in message) {
-                  if (i > 0) {
-                      l(Array(logPrefix.length+1).join(' ') + message[i]);
-                  } else {
-                      l(logPrefix + message[i]);
-                  }
+            for (var i in message) {
+              if (i > 0) {
+                l(Array(logPrefix.length+1).join(' ') + message[i]);
+              } else {
+                l(logPrefix + message[i]);
               }
+            }
           } else {
-              l(logPrefix + message);
+            l(logPrefix + message);
           }
       }
     };
 
-    var regRequestingForSelf = new RegExp(':'+port);
+    var regDirectRequest = new RegExp(':'+port);
 
     var server = http.createServer(function(request, response) {
       $log('Incoming request');
-      var baseUrl;
-      if (targetBaseUrl) {
-          baseUrl = targetBaseUrl;
-      } else {
-          baseUrl = 'http://' + request.headers.host
-      }
+      var directRequest = regDirectRequest.test(request.headers.host);
 
-      var requestingForSelf = regRequestingForSelf.test(request.headers.host);
-      var uglyUrl = baseUrl + request.url;
-      var originalUrl = prettify(uglyUrl);
-      if (!originalUrl || requestingForSelf ) {
+      // abort if requested directly to spaseo server
+      if (directRequest) {
         var message = [];
-        if (!originalUrl) {
-            message.push('Not specified ugly url');
-        }
-        if (requestingForSelf) {
-            message.push('Referring directly to spaseo server');
-            message.push('Are you missing `proxy_set_header Host $host` on nginx.conf');
-            message.push('or not specified targetBaseUrl?');
-        }
+        message.push('Requested directly to spaseo server');
+        message.push('Are you missing `proxy_set_header Host $http_host` on your nginx.conf');
+        message.push('or not specified targetBaseUrl?');
         message.push('See `https://github.com/endaaman/spaseo.js/blob/master/README.md`. It may help you.');
         $log(message, true);
         res = {
-            name: pjson.name,
-            version: pjson.version,
-            timeout: timeout,
-            targetBaseUrl: targetBaseUrl,
-            logging: !!logging,
-            message: message
+          name: pjson.name,
+          version: pjson.version,
+          timeout: timeout,
+          targetBaseUrl: targetBaseUrl,
+          verbose: !!verbose,
+          message: message
         }
         response.setHeader('Content-Type', 'application/json');
         response.writeHead(200);
         response.write(JSON.stringify(res));
         response.end();
         return;
+      }
+
+      var baseUrl;
+      if (targetBaseUrl) {
+        baseUrl = targetBaseUrl;
+      } else {
+        baseUrl = 'http://' + request.headers.host
+      }
+
+      var referredUrl = baseUrl + request.url;
+      var prettifiedUrl = prettify(referredUrl);
+
+      var targetUrl;
+      if (prettifiedUrl) {
+        targetUrl = prettifiedUrl;
+      } else{
+        targetUrl = referredUrl;
       }
 
       var finished = false;
@@ -90,9 +95,7 @@
             response.write(html);
             response.end();
             finished = true;
-            $log('rendered html');
-            $log('ugly  :' + originalUrl);
-            $log('pretty:' + uglyUrl);
+            $log('rendered ' + targetUrl);
           }
         });
       }
@@ -116,7 +119,7 @@
           }
         });
 
-        page.open(originalUrl, function(status) {
+        page.open(targetUrl, function(status) {
           if (!waitForCallback) {
             $log('Redering immediately..');
             evalAndRender(page);
