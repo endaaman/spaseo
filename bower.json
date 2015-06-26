@@ -1,7 +1,7 @@
 {
   "name": "spaseo.js",
   "main": "client.js",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "homepage": "https://github.com/endaaman/spaseo.js",
   "authors": [
     "endaaman"
