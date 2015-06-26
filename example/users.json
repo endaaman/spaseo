@@ -1,15 +1,17 @@
 [
-    {
-        "id": 1,
-        "name": "ken",
-        "message": " love coding"
-    }, {
-        "id": 2,
-        "name": "saki",
-        "message": "love philosophy"
-    }, {
-        "id": 3,
-        "name": "rui",
-        "message": " love economics"
-    }
+  {
+    "id": 1,
+    "name": "ken",
+    "message": " love coding"
+  },
+  {
+    "id": 2,
+    "name": "saki",
+    "message": "love philosophy"
+  },
+  {
+    "id": 3,
+    "name": "rui",
+    "message": " love economics"
+  }
 ]
