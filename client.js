@@ -1,15 +1,15 @@
 (function() {
   var isOnPhantom = typeof window.callPhantom === 'function'
   var innerWrapper = function(callback) {
-      setTimeout(function() {
-          callback()
-      }, 0);
+    setTimeout(function() {
+      callback()
+    }, 0);
   };
 
   var originalCallback = function() {
-      if (isOnPhantom) {
-          window.callPhantom('SPASEO_NOTIFY_RENDERING_FINISH');
-      }
+    if (isOnPhantom) {
+        window.callPhantom('SPASEO_NOTIFY_RENDERING_FINISH');
+    }
   };
 
   var spaseo = function(){
@@ -22,7 +22,7 @@
   }
 
   spaseo.wrap = function(wrapper) {
-      innerWrapper = wrapper;
+    innerWrapper = wrapper;
   }
 
   if (typeof module !== 'undefined' && module.exports) {
