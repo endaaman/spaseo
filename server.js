@@ -89,7 +89,7 @@
 
       function evalAndRender(page) {
         page.evaluate((function() {
-          return document.documentElement.innerHTML;
+          return document.documentElement.outerHTML;
         }), function(html) {
           if (!finished) {
             response.writeHead(200, {});
