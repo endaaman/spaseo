@@ -1,7 +1,7 @@
 # すぱせお.js - spaseo.js
 
 `spaseo` means `Single Page Application Search Engine Optimization`.
-[pronounce](https://raw.githubusercontent.com/endaaman/spaseo/master/misc/spaseo.mp3)
+[pronounce](http://static.endaaman.me/spaseo.mp3)
 
 
 ## What is すぱせお.js
@@ -52,7 +52,7 @@ function(callback) {
 ```
 This is useful if using a library in which the moment that HTML is fully rendered comes in peculiar callback. An example with Vue.js
 
-```
+```coffee
 # setting phase
 Vue = require 'vue'
 spaseo = require 'spaseo.js'
