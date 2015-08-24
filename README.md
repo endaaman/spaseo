@@ -23,20 +23,12 @@ the former provides html with no contents, but the latters does with some conten
 
 
 ## Installation
-### npm
-Available both for server and browser(use Webpack or Browserify)
+
 ```
 npm i spaseo.js -S
 ```
 
-### bower
-Only for browser
-```
-bower i spaseo.js -S
-```
-
-
-## On browser
+## Browser
 
 ### spaseo() => callback
 Called, this tell the server to wait for `callback`.
@@ -53,25 +45,21 @@ function(callback) {
 This is useful if using a library in which the moment that HTML is fully rendered comes in peculiar callback. An example with Vue.js below.
 
 ```coffee
-# setting phase
 Vue = require 'vue'
 spaseo = require 'spaseo.js'
 spaseo.wrap (cb)->
     Vue.nextTick ->
         cb()
 
-
-# implementation
 request = require 'superagent'
-~~ = Vue.extend
-    template: ~~
-    data: ->
+new Vue
+    data:
         items: []
-    attached: ->
+    created: ->
         cb = spaseo()
         request.get '/api/items'
         .end (err, res)=>
-            @items = res.body
+            @$set 'items', res.body
             cb()
 ```
 
@@ -82,72 +70,76 @@ Just notify the server that html is ready to render.
 ## API
 ### spaseo(config)
 
-* `config.port` (default: `9999`)
+returns handler for built-in `http` module.
 
+* `config.baseUrl` (default: `'http://' + request.headers.host`)
 
-* `config.baseUrl` (default: `'http://' + request.header.host + prettfiedUrl`)
+  This should include protocol and host like `http://localhost:8080` or `http://example.com`. `spaseo.js` makes an url by simply joining `baseUrl` and path(loaded from from HTTP header) to target url, opens the url using PhantomJS, and renders the generated full HTML.
 
-  This should include protcol and host like `http://localhost:8080` or `http://example.com`. `spaseo.js` simply joins provided `baseUrl` and path(loaded from from HTTP header).
-
-  If not specified, `spaseo.js` checks `host` of HTTP header and joins `protcol`, `host` and `path`(if shebang mode, spaseo store ugly url and replac with it) like `'http://' + request.header.host + path`.
+  If `config.baseUrl` is not specified, `spaseo.js` checks `Host` of HTTP header and set `baseUrl` by joining it with `protcol`.
 
   To omit this option, put `proxy_set_header Host $http_host;` on your `nginx.conf`.
 
-* `config.timeout`(default:`7000`)
+* `config.timeoutDuration`(default:`10000`)
 
   duration of period from `var cb = spaseo();` to `cb()`. If you provide falsy value, uses default.
 
 
-* `config.cushionDuration`(default:`500`)
+* `config.cushionDuration`(default:`1000`)
 
-  Waiting duration for `spaseo()` called. If `spaseo()` is not called on client, spaseo renders html immediately. Taking this longtime increases reliability of rendering html completely, but minimum response time becomes just `cushionDuration`. Be chariness if you set this option.
+  Waiting duration for `spaseo()` called. If `spaseo()` is not called on client, spaseo renders html immediately(in the `page.evaluate` of PhantomJS). Taking this longtime increases reliability of rendering html completely, but minimum response time becomes just `cushionDuration`.
+  Be chariness if you set this option.
 
 
 * `config.verbose`(default:`undefined`) whether to put log.
 
 
+
 ## CLI
+You can quickly boot `spaseo.js` server.
+
 ```
 spaseo --port <port> --url <url> --timeout <timeout> --verbose
 ```
-* `--port`(`-p`) for `config.port`
+* `--port`(`-p`) port to listen to
+* `--socket`(`-s`) unix domain socket do listen to
 * `--url`(`-u`) for `config.baseUrl`
 * `--timeout`(`-t`) for `config.timeout`
-* `--verbose`(`-v`) for `config.verbose`
 * `--cushion`(`-c`) for `config.cushionDuration`
+* `--verbose`(`-v`) for `config.verbose`
 * `--help`(`-h`) may help you
 
-do
-```
-./node_modules/spaseo.js/bin/spaseo -v
-```
-or if globally installed
-```
-spaseo -p 4545 -u http://example.com
-```
+`spaseo.js` places `--port` above `--socket`.
+
 
 
 ## NOTICE
-* spaseo doesn't support `https`.
-* Don't forget add `<meta name="fragment" content="!">`.
 * Url including search query and hash like `http://example.com/#!/path?q=123` may not work.
   See the section "Role of the Search Engine Crawler" of
   https://developers.google.com/webmasters/ajax-crawling/docs/specification.
 
-* Works well with [`pm2`](https://github.com/Unitech/pm2) and [`forever`](https://github.com/foreverjs/forever).
-
 ## Example
 
-### Booting spaseo server
+### Prepare spaseo server
 Write script starting spaseo server
-```
+
+```js
 // seo.js
-require('spaseo.js')({
-    port: 6557,
-    timeout: 100000
+
+var http = require('http');
+
+var handler = require('../spaseo')({
+  timeoutDuration: 15000,
+  cushionDuration: 3000
 });
+
+http
+.createServer(handler)
+.listen(6557);
 ```
+
 and run
+
 ```
 pm2 start seo.js
 ```
@@ -164,6 +156,7 @@ upstream spaseo {
 server {
     listen 80;
     server_name example.com;
+    proxy_set_header Host $http_host;
     location / {
         index /index.html;
         try_files $uri @fallback;

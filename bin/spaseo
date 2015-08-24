@@ -1,20 +1,55 @@
 #!/usr/bin/env node
+
+var path = require('path');
+var http = require('http');
 var pjson = require('../package.json');
 var program = require('commander');
+var spaseo = require('../src/spaseo');
 
 program
 .version(pjson.version)
+.usage('[options]')
 .option('-p, --port <port>', 'port number(default: 9999)')
-.option('-t, --timeout <timeout>', 'timeout duration(default: 7000)')
-.option('-u, --url <url>', 'target spa base url like "http://example.com"(default: "http://"+request.headers.host)')
-.option('-c, --cushion <cushion>', 'cushion duration(default: 500)')
+.option('-s, --socket <socket>', 'unix socket path')
+.option('-u, --url <url>', 'target url like "http://example.com"(protocol + // + host)')
+.option('-c, --cushion <cushion>', 'cushion duration(default: 1000)')
+.option('-t, --timeout <timeout>', 'timeout duration(default: 10000)')
 .option('-v, --verbose', 'whether to put logs')
 .parse(process.argv);
 
-require('../spaseo')({
-  port: program.port,
+
+var portOrSocket = parseInt(program.port);
+var usingSocket = false;
+if (!portOrSocket) {
+    var __s;
+    if (__s = program.socket) {
+        portOrSocket = ''+__s;
+        usingSocket = true;
+    } else {
+        portOrSocket = 9999;
+    }
+}
+
+var config = {
   baseUrl: program.url,
-  timeout: program.timeout,
-  cushion: program.cushion,
+  timeoutDuration: program.timeout,
+  cushionDuration: program.cushion,
   verbose: program.verbose
+}
+
+var handler = spaseo(config);
+
+http
+.createServer(handler)
+.listen(portOrSocket, function() {
+    if (!config.verbose) return ;
+
+    var host;
+    if (usingSocket) {
+        host = 'unix:' + portOrSocket;
+    } else {
+        host = 'localhost:' + portOrSocket;
+    }
+    console.log('Listening on ' + host + ', CTRL+C to stop');
+    console.log();
 });

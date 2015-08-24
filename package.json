@@ -20,7 +20,7 @@
   "engines": {
     "node": ">=0.8.0"
   },
-  "main": "spaseo.js",
+  "main": "src/spaseo.js",
   "homepage": "https://github.com/endaaman/spaseo.js",
   "bugs": {
     "url": "https://github.com/endaaman/spaseo.js/issues"
@@ -34,13 +34,9 @@
     "phantom": "^0.7.2"
   },
   "files": [
-    "bin",
     "README.md",
     "package.json",
-    "spaseo.js",
-    "prettify.js",
-    "server.js",
-    "client.js",
-    "commands.js"
+    "src/*",
+    "bin/*"
   ]
 }
