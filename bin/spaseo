@@ -2,8 +2,8 @@
 
 var path = require('path');
 var http = require('http');
-var pjson = require('../package.json');
 var program = require('commander');
+var pjson = require('../package.json');
 var spaseo = require('../src/spaseo');
 
 program
