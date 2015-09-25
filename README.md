@@ -1,25 +1,13 @@
 # すぱせお.js - spaseo.js
 
-`spaseo` means `Single Page Application Search Engine Optimization`.
-[pronounce](http://static.endaaman.me/spaseo.mp3)
+`spaseo` means `Single Page Application Search Engine Optimization`. [pronounce](http://static.endaaman.me/spaseo.mp3)
 
 
 ## What is spaseo.js
-`spaseo.js` solves SEO problem of single page apps by prerendering HTML using PhantomJS.
-
-Just try
-```
-curl http://endaaman.me
-```
-and
-```
-curl http://endaaman.me?_escaped_fragment_
-```
-or
-```
-curl http://endaaman.me -A Googlebot
-```
-the former provides html with no contents, but the latters does with some contents. This is the power of `spaseo.js`
+* Server side
+  Prerendering HTML made by SPA(such as Angular) using PhantomJS.
+* Client side
+  Notifying server HTML is ready
 
 
 ## Installation
@@ -27,45 +15,6 @@ the former provides html with no contents, but the latters does with some conten
 ```
 npm i spaseo.js -S
 ```
-
-## Browser
-
-### spaseo() => callback
-Called, this tell the server to wait for `callback`.
-
-### spaseo.wrap(wrapper)
-Default is
-```js
-function(callback) {
-    setTimeout(function() {
-        callback()
-    }, 0);
-};
-```
-This is useful if using a library in which the moment that HTML is fully rendered comes in peculiar callback. An example with Vue.js below.
-
-```coffee
-Vue = require 'vue'
-spaseo = require 'spaseo.js'
-spaseo.wrap (cb)->
-    Vue.nextTick ->
-        cb()
-
-request = require 'superagent'
-new Vue
-    data:
-        items: []
-    created: ->
-        cb = spaseo()
-        request.get '/api/items'
-        .end (err, res)=>
-            @$set 'items', res.body
-            cb()
-```
-
-### callback() (<= spaseo())
-Just notify the server that html is ready to render.
-
 
 ## API
 ### spaseo(config)
@@ -93,6 +42,20 @@ returns handler for built-in `http` module.
 
 * `config.verbose`(default:`undefined`) whether to put log.
 
+### Example
+
+```js
+http  = require('http');
+spaseo = require('spaseo.js');
+
+http.createServer(spaseo({
+  baseUrl: 'http://example.com',
+  timeoutDuration: 8000,
+  cushionDuration: 500,
+  verbose: true
+})).listen(9999);
+```
+
 
 
 ## CLI
@@ -111,6 +74,64 @@ spaseo --port <port> --url <url> --timeout <timeout> --verbose
 
 `spaseo.js` places `--port` above `--socket`.
 
+
+
+## Browser
+
+### spaseo() => callback
+When this called, `spaseo.js` tells the server to wait for the returned `callback` is called.
+
+### callback([status]) (<= spaseo())
+Just notify the server that html is ready to render. Default value of `status` is `200`.
+
+### spaseo.wrap(wrapper)
+Default is
+```js
+function(callback) {
+  setTimeout(function() {
+    callback()
+  }, 0);
+};
+```
+The param `callback` is already wrapped like
+
+```js
+// this is get by `spaseo()`
+function(status) {
+  innerWrapper(function (){
+    originalCallback(status);
+  });
+}
+```
+So you don'y have to think about `status` param.
+
+This is useful if using a library in which the moment that HTML is fully rendered comes in peculiar callback. An example with Vue.js below.
+
+```coffee
+Vue = require 'vue'
+spaseo = require 'spaseo.js'
+spaseo.wrap (cb)->
+    Vue.nextTick ->
+        cb()
+
+request = require 'superagent'
+new Vue
+    template: '#app'
+    data:
+        items: []
+    created: ->
+        cb = spaseo()
+        request.get '/api/items'
+        .end (err, res)=>
+            if err
+                cb 404
+                return
+            @items = res.body
+            cb()
+```
+
+### spaseo.log(text)
+Pass log to server side. When `spaseo.js` is booted with `verbose: true` or `spaseo -v`, the `text` will put on the server side.
 
 
 ## NOTICE
@@ -135,7 +156,7 @@ var handler = require('../spaseo')({
 
 http
 .createServer(handler)
-.listen(6557);
+.listen(9999);
 ```
 
 and run
@@ -151,7 +172,7 @@ forver start seo.js
 ### Write nginx.conf
 ```
 upstream spaseo {
-    server localhost:6557;
+    server localhost:9999;
 }
 server {
     listen 80;
@@ -174,7 +195,7 @@ server {
 }
 ```
 
-This is usual setting for a single page app with `spaseo.js`. Getting request with `?_escaped_fragment_` or `User-Agent` including `googlebot` or `yahoo`, pass to `spaseo` server listening on `http://localhost:6557`.
+This is usual setting for a single page app with `spaseo.js`. Getting request with `?_escaped_fragment_` or `User-Agent` including `googlebot` or `yahoo`, pass to `spaseo` server listening on `http://localhost:9999`.
 
 
 ### Now SEO is ready
