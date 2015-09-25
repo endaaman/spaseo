@@ -1,6 +1,3 @@
-(function(){
-'use strict';
-
 var url = require('url');
 var querystring = require('querystring');
 
@@ -28,5 +25,3 @@ module.exports = function(uglyUrl) {
   };
   return url.format(newUrlObj);
 };
-
-})();

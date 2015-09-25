@@ -1,44 +1,45 @@
-(function(){
-'use strict';
-
-var commands = require('./commands');
 var phantom = require('phantom');
+var u = require('./util');
 
 var ph;
 
-module.exports = function (targetUrl, config, callback){
-  function $log(line) {
-    if (config.verbose) console.log(line);
-  }
-
+module.exports = function (targetUrl, callback){
   var page = null;
   var waitForCallback = false;
   var finished = false;
+  var config = require('./config')();
 
-  function evalAndRender(page) {
+  function evalAndRender(page, status) {
     page.evaluate((function() {
       return document.documentElement.outerHTML;
     }), function(html) {
       if (!finished) {
-        callback(html);
+        if (!status) {
+          status = 200;
+        }
+        callback(html, status);
         finished = true;
-        $log('rendered ' + targetUrl);
+        u.$log('rendered ' + targetUrl);
       }
     });
   }
 
-  function onCallback(command) {
-    switch (command) {
-      case commands.start:
-        $log('Waiting callback from client..');
+  function onCallback(data) {
+    switch (data.command) {
+      case 'START':
+        u.$log('Waiting callback from client..');
         waitForCallback = true;
         setTimeout(function() {
-          evalAndRender(page);
+          u.$log('Timeout: cb was acquired but the cb has not been called.');
+          evalAndRender(page, 200);
         }, config.timeoutDuration);
       break;
-      case commands.finish:
-        $log('Got callback from client');
-        evalAndRender(page);
+      case 'FINISH':
+        u.$log('Got callback from client');
+        evalAndRender(page, data.status);
+      break;
+      case 'LOG':
+        u.$log(data.text+' (from client)');
       break;
     }
   }
@@ -46,8 +47,8 @@ module.exports = function (targetUrl, config, callback){
   function onOpen(status) {
     setTimeout(function() {
       if (!waitForCallback) {
-        $log('Redering immediately..');
-        evalAndRender(page);
+        u.$log('Redering immediately..');
+        evalAndRender(page, 200);
       }
     }, config.cushionDuration);
   }
@@ -64,11 +65,9 @@ module.exports = function (targetUrl, config, callback){
   } else {
     phantom.create(function(__ph) {
       ph = __ph;
-      $log('Created PhantomJS instance');
+      u.$log('Created PhantomJS instance');
       ph.createPage(onPageCreate);
     });
   }
 
 }
-
-})();

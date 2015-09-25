@@ -1,36 +1,40 @@
-(function(){
-'use strict';
-
 var pjson = require('../package.json');
 var prettify = require('./prettify');
 var evalPage = require('./evalPage');
+var u = require('./util');
 
 function isString(s) {
   return typeof s === 'string' || s instanceof String
 }
 
-
 module.exports = function(c) {
   if (!c) {
     c = {};
   }
-  var config = {};
+  var config= {};
   config.baseUrl = c.baseUrl || null;
   config.timeoutDuration = parseInt(c.timeoutDuration) || 10000;
   config.cushionDuration = parseInt(c.cushionDuration) || 1000;
   config.verbose = !!c.verbose;
+  // set config
+  require('./config')(config);
 
-  function $log(line) {
-    if (config.verbose) console.log(line);
-  }
+  var $log = u.$log;
 
-  function end(response, body, type) {
-    if (!type) {
-      type = 'text/html';
+  function end(response, data) {
+    if (!data.type) {
+      data.type = 'text/html';
     }
-    response.setHeader('Content-Type', type);
-    response.writeHead(200, {});
-    response.write(body);
+    if (!data.status) {
+      data.status = 200;
+    }
+    if (!data.body) {
+      data.body = '';
+      data.status = 204;
+    }
+    response.setHeader('Content-Type', data.type);
+    response.writeHead(data.status, {});
+    response.write(data.body);
     response.end();
   }
 
@@ -66,12 +70,15 @@ module.exports = function(c) {
       var requestedPort = getPortOfHost(request);
 
       if (requestedPort && requestedPort > 0 && requestedPort === serverPort) {
-        end(response, buildError([
-          'Missing host to open using PhantomJS. ',
-          'Fill `baseUrl` option or set correct host of HTTP header. ',
-          'If you are using nginx proxy, ',
-          '`proxy_set_header Host $http_host` will may help you.'
-        ]), 'application/json');
+        end(response, {
+          body: buildError([
+            'Missing host to open using PhantomJS. ',
+            'Fill `baseUrl` option or set correct host of HTTP header. ',
+            'If you are using nginx proxy, ',
+            '`proxy_set_header Host $http_host` will may help you.'
+          ]),
+          type: 'application/json'
+        });
         $log('Got Request without `Host:` of HTTP header or `baseUrl` option.');
         return ;
       }
@@ -82,10 +89,11 @@ module.exports = function(c) {
     var prettifiedUrl = prettify(rawUrl);
     var targetUrl = prettifiedUrl || rawUrl;
 
-    evalPage(targetUrl, config, function(html) {
-      end(response, html);
+    evalPage(targetUrl, function(html, status) {
+      end(response, {
+        body: html,
+        status: status
+      });
     });
   };
 }
-
-})();

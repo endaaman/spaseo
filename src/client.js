@@ -1,27 +1,47 @@
 (function(){
 'use strict';
 
-var commands = require('./commands');
+var isOnPhantom = typeof window.callPhantom === 'function';
 
-var isOnPhantom = typeof window.callPhantom === 'function'
-var innerWrapper = function(callback) {
+var defaultWrapper = function(cb) {
   setTimeout(function() {
-    callback()
+    cb()
   }, 0);
 };
 
-var originalCallback = function() {
+var innerWrapper = defaultWrapper;
+
+var $log = function(text) {
   if (isOnPhantom) {
-      window.callPhantom(commands.start);
+    window.callPhantom({
+      command: 'LOG',
+      text: text
+    });
+  }
+}
+
+var originalCallback = function(status) {
+  if (isOnPhantom) {
+    if (!status) {
+      status = 200;
+    }
+    window.callPhantom({
+      command: 'FINISH',
+      status: status
+    });
   }
 };
 
 var spaseo = function(){
   if (isOnPhantom) {
-    window.callPhantom(commands.finish);
+    window.callPhantom({
+      command: 'START'
+    });
   }
-  return function() {
-    innerWrapper(originalCallback);
+  return function(status) {
+    innerWrapper(function (){
+      originalCallback(status);
+    });
   }
 }
 
@@ -29,6 +49,14 @@ spaseo.wrap = function(wrapper) {
   innerWrapper = wrapper;
 }
 
-module.exports = spaseo;
+spaseo.log = function(text) {
+  $log(text);
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = spaseo;
+} else {
+  window.spaseo = spaseo;
+}
 
 })();
