@@ -5,7 +5,7 @@ var ph;
 
 module.exports = function (targetUrl, callback){
   var page = null;
-  var waitForCallback = false;
+  var waitingForCallback = false;
   var finished = false;
   var config = require('./config')();
 
@@ -27,8 +27,10 @@ module.exports = function (targetUrl, callback){
   function onCallback(data) {
     switch (data.command) {
       case 'START':
+        if waitingForCallback
+          return;
+        waitingForCallback = true;
         u.$log('Waiting callback from client..');
-        waitForCallback = true;
         setTimeout(function() {
           u.$log('Timeout: cb was acquired but the cb has not been called.');
           evalAndRender(page, 200);
@@ -46,7 +48,7 @@ module.exports = function (targetUrl, callback){
 
   function onOpen(status) {
     setTimeout(function() {
-      if (!waitForCallback) {
+      if (!waitingForCallback) {
         u.$log('Redering immediately..');
         evalAndRender(page, 200);
       }
