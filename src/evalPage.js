@@ -28,6 +28,7 @@ module.exports = function (targetUrl, callback){
     switch (data.command) {
       case 'START':
         if waitingForCallback
+          u.$log('`command: "START"` is called twice.');
           return;
         waitingForCallback = true;
         u.$log('Waiting callback from client..');
@@ -41,7 +42,7 @@ module.exports = function (targetUrl, callback){
         evalAndRender(page, data.status);
       break;
       case 'LOG':
-        u.$log(data.text+' (from client)');
+        u.$log(data.text + '(from client)');
       break;
     }
   }
