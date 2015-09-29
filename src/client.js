@@ -45,6 +45,8 @@ var spaseo = function(){
   }
 }
 
+spaseo.isOnPhantom = isOnPhantom;
+
 spaseo.wrap = function(wrapper) {
   innerWrapper = wrapper;
 }
