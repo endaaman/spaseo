@@ -27,9 +27,10 @@ module.exports = function (targetUrl, callback){
   function onCallback(data) {
     switch (data.command) {
       case 'START':
-        if waitingForCallback
-          u.$log('`command: "START"` is called twice.');
+        if (waitingForCallback) {
+          u.$log('`command: "START"` was called twice and ignored.');
           return;
+        }
         waitingForCallback = true;
         u.$log('Waiting callback from client..');
         setTimeout(function() {
